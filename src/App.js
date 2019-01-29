@@ -26,25 +26,24 @@ class App extends Component {
   }
 
   /**
-   * Resize the array if it exceeds the max length
+   * Add the next value in the array and resize it if exceeds the max length
+   * @param newValue: the last value to add to the array
    * @param maxLength: max length of the array 
    */ 
-  resizeValues(maxLength = 10) {
+  handleValues(newValue, maxLength = 10) {
     const newArray = this.state.values;
-    let changed = false;
+    newArray.push(newValue)
     while (newArray.length > maxLength) {
       newArray.shift(); 
-      changed = true;
     }
-    if (changed)
-      this.setState({values: newArray});
+    this.setState({values: newArray});
   }
 
   /**
    * Make the request to get the new value
    * @param offsetTime: time between each request (in ms)
    */
-  updateChart(offsetTime = 3000) {
+  updateChart(offsetTime = 2000) {
     const {values} = this.state;
 
     // call itself every 10 secs
@@ -52,6 +51,8 @@ class App extends Component {
 
     // axios.get('http://demo.haproxy.org/;csv')
     // .then( response => {
+    //   values.push(this.getNextValue(response.data));
+    //   this.setState({values: values});
     // })
     // .catch(error => {
     //   console.log(error)
@@ -63,6 +64,42 @@ class App extends Component {
     this.resizeValues();
   }
   
+  /**
+   * Return the expected value from the csv returned by the request 
+   * @param csv: Response received when request is done
+   */
+  getNextValue(csv) {
+    let attr = [];
+    let tab = [];
+
+    let row = 0;
+    for (let line of csv.split('\n')) {
+      // console.log("Line " +r+ ": "+line);
+      let column = 1;
+
+      if (row === 0) {
+        for (let value of line.split(',')) {
+          attr[column++] = (
+            value === "# pxname" 
+            ? "pxname" 
+            : value)
+          ; 
+        }
+      } else {
+        tab[row] = {};
+        for (let value of line.split(',')) {
+          tab[row][attr[column++]] = value;
+        }
+      }
+      row++;  
+    }
+
+    for (let row in tab) {
+      if (tab[row]['svname'] === 'FRONTEND')
+        console.log(tab[row]['stot']);
+    }
+  }
+
   /**
    * Map getted values into the chart
    * @param values: array containing the values to map to the chart
