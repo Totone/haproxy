@@ -1,0 +1,10 @@
+@import '../../style/colors';
+@import '../../style/mixins';
+
+
+.chart {
+  @include automargin;
+  @include shadowHalo($chartBgShadow);
+  border-radius: 5px;
+  background-color: $chartBgColor;
+}
