@@ -11,14 +11,16 @@ class App extends Component {
     super(props);
     this.state = {
       values: [],
-      count: 0,
       timeoutId: '',
+      offsetTime: 10000,
+      valuesMaxLength: 10,
+      proxy: 'https://cors-anywhere.herokuapp.com/',
     };
 
-    this.updateChart = this.updateChart.bind(this);
-    this.resizeValues = this.resizeValues.bind(this);
+    this.handleValues = this.handleValues.bind(this);
     this.mapChartValues = this.mapChartValues.bind(this);
     this.switchMode = this.switchMode.bind(this);
+    this.updateChart = this.updateChart.bind(this);
   }
 
   componentDidMount() {
@@ -30,7 +32,7 @@ class App extends Component {
    * @param newValue: the last value to add to the array
    * @param maxLength: max length of the array 
    */ 
-  handleValues(newValue, maxLength = 10) {
+  handleValues(newValue, maxLength = this.state.valuesMaxLength) {
     const newArray = this.state.values;
     newArray.push(newValue)
     while (newArray.length > maxLength) {
@@ -43,25 +45,25 @@ class App extends Component {
    * Make the request to get the new value
    * @param offsetTime: time between each request (in ms)
    */
-  updateChart(offsetTime = 2000) {
-    const {values} = this.state;
-
+  updateChart(offsetTime = this.state.offsetTime) {
     // call itself every 10 secs
     this.setState({timeoutId: setTimeout(this.updateChart, offsetTime)});
 
-    // axios.get('http://demo.haproxy.org/;csv')
-    // .then( response => {
-    //   values.push(this.getNextValue(response.data));
-    //   this.setState({values: values});
-    // })
-    // .catch(error => {
-    //   console.log(error)
-    // })
+    axios.get(`${this.state.proxy}http://demo.haproxy.org/;csv`)
+    .then( response => {
+      this.handleValues(this.getNextValue(response.data));
+      // equivalent: 
+      // const csv = response.data;
+      // const newValue = this.getNextValue(csv);
+      // this.handleValues(newValue);
+    })
+    .catch(error => {
+      console.log(error);
+      this.handleValues('Connexion error');
+    })
 
     // random number to emulate the request
-    values.push(parseInt(Math.random()*500+25));
-    this.setState({values: values});
-    this.resizeValues();
+    // this.handleValues(parseInt(Math.random()*500+25));
   }
   
   /**
@@ -74,7 +76,6 @@ class App extends Component {
 
     let row = 0;
     for (let line of csv.split('\n')) {
-      // console.log("Line " +r+ ": "+line);
       let column = 1;
 
       if (row === 0) {
@@ -82,8 +83,8 @@ class App extends Component {
           attr[column++] = (
             value === "# pxname" 
             ? "pxname" 
-            : value)
-          ; 
+            : value
+          ); 
         }
       } else {
         tab[row] = {};
@@ -96,7 +97,7 @@ class App extends Component {
 
     for (let row in tab) {
       if (tab[row]['svname'] === 'FRONTEND')
-        console.log(tab[row]['stot']);
+        return (tab[row]['stot']);
     }
   }
 

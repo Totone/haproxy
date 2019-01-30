@@ -45,10 +45,10 @@ body {
     
     &-button {
       &-play {
-        @include button($buttonPlayColor);
+        @include button($buttonPlayColor, $textColor);
       }
       &-pause {
-        @include button($buttonPauseColor);
+        @include button($buttonPauseColor, $textColor);
       }
     }
   }

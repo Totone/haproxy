@@ -29,7 +29,7 @@ const ValuesArray = ({
   )
 }
 
-ValuesArray.PropTypes = {
+ValuesArray.propTypes = {
   data: PropTypes.array.isRequired,
 }
 
