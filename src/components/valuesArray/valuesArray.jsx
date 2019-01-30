@@ -21,7 +21,11 @@ const ValuesArray = ({
           key={index}
           className="valuesArray-cellValue"
         >
-          {value}
+          {
+            value === -1
+            ? 'Connection error'
+            : value
+          }
         </div>
         ))
       }

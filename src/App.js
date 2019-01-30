@@ -59,7 +59,7 @@ class App extends Component {
     })
     .catch(error => {
       console.log(error);
-      this.handleValues('Connexion error');
+      this.handleValues(-1);
     })
 
     // random number to emulate the request
